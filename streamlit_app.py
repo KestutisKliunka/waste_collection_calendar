@@ -5,27 +5,28 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-# Global variable to hold the dataset
-data = None
+# Automatically load the dataset at app start
+@st.cache  # Cache the dataset for better performance
+def load_data():
+    return pd.read_csv("dataset.csv", encoding='ISO-8859-1', delimiter=';', quotechar='"')
+
+# Load the dataset
+data = load_data()
 
 # Title and Instructions
 st.title("Interactive Waste Collection Calendar")
-st.write("Upload your dataset and enter an address to see the collection calendar.")
+st.markdown("""
+## How to Use:
+1. Enter your address in the input box below.
+2. View the waste collection calendar for 2025.
+""")
 
-# Step 1: File Upload
-uploaded_file = st.file_uploader("Upload your CSV file", type="csv")
-if uploaded_file is not None:
-    # Load the dataset into a DataFrame
-    data = pd.read_csv(uploaded_file, encoding='ISO-8859-1', delimiter=';', quotechar='"')
-    st.write("Dataset loaded successfully!")
-    st.write(data.head())  # Display the first few rows for debugging
-
-# Step 2: Address Input
+# Step 1: Address Input
 address = st.text_input("Enter an address")
-if address and data is not None:
+if address:
     st.write(f"Generating calendar for address: {address}")
 
-    # Step 3: Filter Data for the Given Address
+    # Step 2: Filter Data for the Given Address
     filtered_data = data[data['Eiendomsnavn'].str.contains(address, case=False, na=False)]
     if filtered_data.empty:
         st.write("No data found for the given address.")
@@ -33,7 +34,7 @@ if address and data is not None:
         st.write("Filtered data:")
         st.write(filtered_data.head())  # Display filtered data for debugging
 
-        # Step 4: Extract Collection Schedule
+        # Step 3: Extract Collection Schedule
         def extract_schedule(route_number):
             route_str = str(route_number).zfill(5)  # Ensure 5 digits
             weekday_digit = int(route_str[3])  # Fourth digit: Weekday
@@ -53,7 +54,7 @@ if address and data is not None:
         st.write("Extracted schedule:")
         st.write(filtered_data[['Eiendomsnavn', 'Rutenummer', 'Weekday', 'CycleWeek']])
 
-        # Step 5: Generate Calendar Visualization
+        # Step 4: Generate Calendar Visualization
         def generate_calendar(filtered_data):
             # Define the 2025 cycle mapping
             def generate_corrected_2025_schedule():
@@ -81,9 +82,6 @@ if address and data is not None:
 
                 # Get the first weekday and number of days in the month
                 first_weekday, num_days_in_month = calendar.monthrange(2025, month)
-                month_dates = [datetime(2025, month, day) for day in range(1, num_days_in_month + 1)]
-
-                # Align rows based on the first day of the month
                 for day in range(1, num_days_in_month + 1):
                     current_date = datetime(2025, month, day)
                     day_of_week = current_date.weekday()  # 0 = Monday, 6 = Sunday
