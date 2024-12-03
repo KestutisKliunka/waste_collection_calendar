@@ -89,9 +89,15 @@ if address and data is not None:
 
                     # Highlight collection dates
                     for _, row in filtered_data.iterrows():
-                        if corrected_cycle_schedule_2025[current_date] == row['CycleWeek'] and current_date.weekday() + 1 == row['Weekday']:
-                            ax.add_patch(Rectangle((weekday, -week_number - 1), 1, 1,
-                                                   color=route_colors[row['Rutenummer']], alpha=0.3))
+                        if current_date in corrected_cycle_schedule_2025:  # Check key existence
+                            if (
+                                corrected_cycle_schedule_2025[current_date] == row['CycleWeek']
+                                and current_date.weekday() + 1 == row['Weekday']
+                            ):
+                                ax.add_patch(Rectangle((weekday, -week_number - 1), 1, 1,
+                                                       color=route_colors[row['Rutenummer']], alpha=0.3))
+                        else:
+                            st.write(f"Debug: Date {current_date} not found in schedule.")
                 ax.set_xlim(-0.5, 6.5)
                 ax.set_ylim(-6, 0)
                 ax.axis('off')
