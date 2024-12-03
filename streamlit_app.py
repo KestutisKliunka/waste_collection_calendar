@@ -94,10 +94,11 @@ if address and data is not None:
                                 corrected_cycle_schedule_2025[current_date] == row['CycleWeek']
                                 and current_date.weekday() + 1 == row['Weekday']
                             ):
-                                ax.add_patch(Rectangle((weekday, -week_number - 1), 1, 1,
-                                                       color=route_colors[row['Rutenummer']], alpha=0.3))
-                        else:
-                            st.write(f"Debug: Date {current_date} not found in schedule.")
+                                ax.add_patch(Rectangle(
+                                    (weekday, -week_number - 1 + 0.4),  # Move up by 40% of the height
+                                    1, 1,
+                                    color=route_colors[row['Rutenummer']], alpha=0.3
+                                ))
                 ax.set_xlim(-0.5, 6.5)
                 ax.set_ylim(-6, 0)
                 ax.axis('off')
