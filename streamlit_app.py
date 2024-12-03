@@ -80,7 +80,8 @@ if address and data is not None:
                 ax.set_title(calendar.month_name[month], fontsize=14)
 
                 # Get all dates for the month
-                month_dates = [datetime(2025, month, day) for day in range(1, 32) if datetime(2025, month, day).month == month]
+                num_days_in_month = calendar.monthrange(2025, month)[1]
+                month_dates = [datetime(2025, month, day) for day in range(1, num_days_in_month + 1)]
 
                 # Group dates by ISO weeks
                 weeks = {}
