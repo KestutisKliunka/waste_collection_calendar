@@ -8,7 +8,10 @@ from matplotlib.patches import Rectangle
 # Automatically load the dataset at app start
 @st.cache  # Cache the dataset for better performance
 def load_data():
-    return pd.read_csv("dataset.csv", encoding='ISO-8859-1', delimiter=';', quotechar='"')
+    # Load and clean the dataset
+    df = pd.read_csv("dataset.csv", encoding='ISO-8859-1', delimiter=';', quotechar='"')
+    df['Eiendomsnavn'] = df['Eiendomsnavn'].str.strip().str.lower()  # Clean and standardize addresses
+    return df
 
 # Load the dataset
 data = load_data()
@@ -26,8 +29,11 @@ address = st.text_input("Enter an address")
 if address:
     st.write(f"Generating calendar for address: {address}")
 
+    # Normalize the input address
+    normalized_address = address.strip().lower()
+
     # Step 2: Filter Data for the Given Address
-    filtered_data = data[data['Eiendomsnavn'].str.contains(address, case=False, na=False)]
+    filtered_data = data[data['Eiendomsnavn'].str.contains(normalized_address, na=False)]
     if filtered_data.empty:
         st.write("No data found for the given address.")
     else:
