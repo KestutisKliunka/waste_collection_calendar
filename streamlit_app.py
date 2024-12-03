@@ -78,29 +78,38 @@ if address and data is not None:
             for month in range(1, 13):
                 ax = plt.subplot(4, 3, month)
                 ax.set_title(calendar.month_name[month], fontsize=14)
-                cal = calendar.Calendar(firstweekday=0)
-                for day in cal.itermonthdays(2025, month):
-                    if day == 0:
-                        continue
-                    current_date = datetime(2025, month, day)
-                    weekday = current_date.weekday()
-                    week_number = (day - 1) // 7
-                    ax.text(weekday + 0.5, -week_number, str(day), ha='center', va='center', fontsize=10)
 
-                    # Highlight collection dates
-                    for _, row in filtered_data.iterrows():
-                        if current_date in corrected_cycle_schedule_2025:  # Check key existence
-                            if (
-                                corrected_cycle_schedule_2025[current_date] == row['CycleWeek']
-                                and current_date.weekday() + 1 == row['Weekday']
-                            ):
-                                ax.add_patch(Rectangle(
-                                    (weekday, -week_number - 1 + 0.4),  # Move up by 40% of the height
-                                    1, 1,
-                                    color=route_colors[row['Rutenummer']], alpha=0.3
-                                ))
+                # Get all dates for the month
+                month_dates = [datetime(2025, month, day) for day in range(1, 32) if datetime(2025, month, day).month == month]
+
+                # Group dates by ISO weeks
+                weeks = {}
+                for date in month_dates:
+                    iso_week = date.isocalendar()[1]
+                    if iso_week not in weeks:
+                        weeks[iso_week] = []
+                    weeks[iso_week].append(date)
+
+                # Plot the days for each week
+                for week_num, week_dates in weeks.items():
+                    for date in week_dates:
+                        day_index = date.weekday()
+                        ax.text(day_index + 0.5, -week_num, str(date.day), ha='center', va='center', fontsize=10)
+
+                        # Highlight collection dates
+                        for _, row in filtered_data.iterrows():
+                            if date in corrected_cycle_schedule_2025:  # Check key existence
+                                if (
+                                    corrected_cycle_schedule_2025[date] == row['CycleWeek']
+                                    and date.weekday() + 1 == row['Weekday']
+                                ):
+                                    ax.add_patch(Rectangle(
+                                        (day_index, -week_num - 1 + 0.4),  # Move up by 40% of the height
+                                        1, 1,
+                                        color=route_colors[row['Rutenummer']], alpha=0.3
+                                    ))
                 ax.set_xlim(-0.5, 6.5)
-                ax.set_ylim(-6, 0)
+                ax.set_ylim(-7, 0)
                 ax.axis('off')
             plt.tight_layout()
             plt.suptitle(f"Collection Calendar for {address} - 2025", fontsize=18, y=1.02)
