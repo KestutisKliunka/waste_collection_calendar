@@ -1,2 +1,4 @@
-matplotlib
+fuzzywuzzy
+python-Levenshtein
 pandas
+matplotlib
