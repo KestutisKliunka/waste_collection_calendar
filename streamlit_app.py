@@ -23,8 +23,7 @@ address = st.text_input("Enter an address")
 if address and data is not None:
     st.write(f"Generating calendar for address: {address}")
 
-    # Step 3: Debugging Address Filtering
-    # Filter the dataset for the provided address
+    # Step 3: Filter Data for the Given Address
     filtered_data = data[data['Eiendomsnavn'].str.contains(address, case=False, na=False)]
     if filtered_data.empty:
         st.write("No data found for the given address.")
@@ -32,19 +31,21 @@ if address and data is not None:
         st.write("Filtered data:")
         st.write(filtered_data.head())  # Display filtered data for debugging
 
-    # Step 4: Extract Collection Schedule
-def extract_schedule(route_number):
-    route_str = str(route_number).zfill(5)  # Ensure 5 digits
-    weekday_digit = int(route_str[3])  # Fourth digit: Weekday
-    cycle_week_digit = int(route_str[4])  # Fifth digit: Cycle week
-    return weekday_digit, cycle_week_digit
+        # Step 4: Extract Collection Schedule
+        def extract_schedule(route_number):
+            route_str = str(route_number).zfill(5)  # Ensure 5 digits
+            weekday_digit = int(route_str[3])  # Fourth digit: Weekday
+            cycle_week_digit = int(route_str[4])  # Fifth digit: Cycle week
+            return weekday_digit, cycle_week_digit
 
-# Add weekday and cycle week to the filtered data
-filtered_data['Weekday'], filtered_data['CycleWeek'] = zip(
-    *filtered_data['Rutenummer'].apply(extract_schedule)
-)
+        # Add weekday and cycle week to the filtered data
+        filtered_data['Weekday'], filtered_data['CycleWeek'] = zip(
+            *filtered_data['Rutenummer'].apply(extract_schedule)
+        )
 
-# Display the extracted schedule for debugging
-st.write("Extracted schedule:")
-st.write(filtered_data[['Eiendomsnavn', 'Rutenummer', 'Weekday', 'CycleWeek']])
+        # Display the extracted schedule for debugging
+        st.write("Extracted schedule:")
+        st.write(filtered_data[['Eiendomsnavn', 'Rutenummer', 'Weekday', 'CycleWeek']])
 
+        # Placeholder for Calendar Generation
+        st.write("Debug: Calendar generation logic goes here.")
